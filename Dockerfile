@@ -58,7 +58,7 @@ RUN apt-get update -qq \
            xvfb \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && curl -sSL --retry 5 -o /tmp/toinstall.deb http://mirrors.kernel.org/debian/pool/main/libx/libxp/libxp6_1.0.2-2_amd64.deb \
+    && curl -sSL --retry 5 -o /tmp/toinstall.deb http://archive.debian.org/debian/pool/main/libx/libxp/libxp6_1.0.2-2_amd64.deb \
     && dpkg -i /tmp/toinstall.deb \
     && rm /tmp/toinstall.deb \
     && curl -sSL --retry 5 -o /tmp/toinstall.deb http://snapshot.debian.org/archive/debian-security/20160113T213056Z/pool/updates/main/libp/libpng/libpng12-0_1.2.49-1%2Bdeb7u2_amd64.deb \
@@ -106,7 +106,7 @@ RUN apt-get update -qq \
     && rm -rf /var/lib/apt/lists/* \
     && echo "Downloading FreeSurfer ..." \
     && mkdir -p /opt/freesurfer-6.0.0 \
-    && curl -fsSL --retry 5 ftp://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz \
+    && curl -fsSL --retry 5 https://surfer.nmr.mgh.harvard.edu/pub/dist/freesurfer/6.0.0/freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.0.tar.gz \
     | tar -xz -C /opt/freesurfer-6.0.0 --strip-components 1 \
          --exclude='freesurfer/average/mult-comp-cor' \
          --exclude='freesurfer/lib/cuda' \
@@ -206,13 +206,13 @@ RUN  pip install --no-cache-dir nipype nibabel niworkflows==1.1.10 nilearn matpl
 RUN  apt-get update
 
 RUN  R -e "install.packages(c('optparse', 'pracma', 'RNifti', \
-               'svglite','signal','reshape2','ggplot2','lme4'), \ 
+               'svglite','signal','reshape2','ggplot2','lme4'), \
                 repos='http://cran.rstudio.com/')"
 
 ## make some directorie
 RUN mkdir /data /out /work /design /cohort
 RUN mkdir /run/uuidd
-RUN apt-get install -y -q --no-install-recommends uuid-runtime procps 
+RUN apt-get install -y -q --no-install-recommends uuid-runtime procps
 
 RUN sed -i '$iexport XCPEDIR=/xcpEngine' $ND_ENTRYPOINT
 
@@ -221,14 +221,14 @@ RUN sed -i '$iexport PATH=$PATH:$XCPEDIR' $ND_ENTRYPOINT
 
 ADD . /xcpEngine
 
-# template 
+# template
 
 RUN bash -c \
     'cd  /xcpEngine \
     && wget -nv  https://upenn.box.com/shared/static/x95ygarwv14sv608muz06tfrmlmo222z.xz \
     && tar -xf x95ygarwv14sv608muz06tfrmlmo222z.xz \
     && rm x95ygarwv14sv608muz06tfrmlmo222z.xz'
-    
+
 
 RUN bash -c 'BRAINATLAS=/xcpEngine/atlas BRAINSPACE=/xcpEngine/space XCPEDIR=/xcpEngine FSLDIR=/opt/fsl-5.0.10 AFNI_PATH=/opt/afni-latest C3D_PATH=/opt/convert3d-nightly/bin ANTSPATH=/opt/ants-latest/bin /xcpEngine/xcpReset \
     && BRAINATLAS=/xcpEngine/atlas LD_LIBRARY_PATH=$gsl2_path BRAINSPACE=/xcpEngine/space XCPEDIR=/xcpEngine /xcpEngine/utils/repairMetadata'
@@ -244,7 +244,6 @@ RUN bash -c 'cp /xcpEngine/utils/license.txt /opt/freesurfer-6.0.0/'
 
 ENV XCPEDIR="/xcpEngine" \
     AFNI_PATH="/opt/afni-latest/" \
-    FREESURFER_HOME="/opt/freesurfer-6.0.0/" \
     workbench="/xcpEngine/thirdparty/workbench/bin_rh_linux64"  \
     C3D_PATH="/opt/convert3d-1.0.0/bin/" \
     PATH="$PATH:/xcpEngine"
